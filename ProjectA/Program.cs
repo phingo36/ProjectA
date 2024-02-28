@@ -1,9 +1,19 @@
 using AspNetCoreHero.ToastNotification;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
+using ProjectA.Models;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddDbContext<ProjectAContext>(
+        options => options.UseSqlServer("Server=PHI;database=ProjectA;Integrated Security=true;TrustServerCertificate=True;"));
+
+builder.Services.AddSingleton<HtmlEncoder>(HtmlEncoder.Create(allowedRanges: new[] {UnicodeRanges.All}));
+
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 builder.Services.AddNotyf(config => { config.DurationInSeconds = 10; config.IsDismissable = true; config.Position = NotyfPosition.BottomRight; });
 
