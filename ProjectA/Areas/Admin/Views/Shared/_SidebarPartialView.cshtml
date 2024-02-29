@@ -7,21 +7,27 @@
                     <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                     Dashboard
                 </a>
+
                 <div class="sb-sidenav-menu-heading">Interface</div>
-                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
-                    <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                    Layouts
-                    <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                <a class="nav-link" href="charts.html">
+                    <div class="sb-nav-link-icon"><i class="fas fa-pie-chart"></i></div>
+                    Quản lý đơn hàng
                 </a>
-                <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
-                    <nav class="sb-sidenav-menu-nested nav">
-                        <a class="nav-link" href="layout-static.html">Static Navigation</a>
-                        <a class="nav-link" href="layout-sidenav-light.html">Light Sidenav</a>
-                    </nav>
-                </div>
+
+                <a class="nav-link" href="charts.html">
+                    <div class="sb-nav-link-icon"><i class="fa-brands fa-product-hunt"></i></div>
+                    Quản lý sản phẩm
+                </a>
+                
+                
+                <a class="nav-link" href="charts.html">
+                    <div class="sb-nav-link-icon"><i class="fa-solid fa-child-reaching"></i></div>
+                    Quản lý khách hàng
+                </a>
+
                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
-                    <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
-                    Pages
+                    <div class="sb-nav-link-icon"><i class="fa-brands fa-windows"></i></div>
+                    Quản lý hệ thống
                     <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                 </a>
                 <div class="collapse" id="collapsePages" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
@@ -37,7 +43,7 @@
                                 <a class="nav-link" href="password.html">Forgot Password</a>
                             </nav>
                         </div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseError" aria-expanded="false" aria-controls="pagesCollapseError">
+                        @* <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseError" aria-expanded="false" aria-controls="pagesCollapseError">
                             Error
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
@@ -47,13 +53,23 @@
                                 <a class="nav-link" href="404.html">404 Page</a>
                                 <a class="nav-link" href="500.html">500 Page</a>
                             </nav>
-                        </div>
+                        </div> *@
+                        <a class="nav-link" href="login.html">Quản lý danh mục</a>
+                        <a class="nav-link" asp-area="Admin" asp-controller="AdminRoles" asp-action="index">Quản lý quyền truy cập</a>
+                        <a class="nav-link" href="login.html">Quản lý Tỉnh/Thành</a>
+                        <a class="nav-link" href="login.html">Quản lý tài khoản</a>
                     </nav>
                 </div>
+
+                <a class="nav-link" href="charts.html">
+                    <div class="sb-nav-link-icon"><i class="fa-solid fa-book"></i></div>
+                    Quản lý tin tức
+                </a>
+
                 <div class="sb-sidenav-menu-heading">Addons</div>
                 <a class="nav-link" href="charts.html">
                     <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                    Charts
+                    Quản lý Pages
                 </a>
                 <a class="nav-link" href="tables.html">
                     <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>

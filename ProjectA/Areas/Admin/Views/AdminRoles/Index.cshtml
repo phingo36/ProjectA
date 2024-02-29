@@ -1,42 +1,66 @@
 ﻿@model IEnumerable<ProjectA.Models.Role>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản lý quyền truy cập";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.RoleName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.RoleName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.RoleId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.RoleId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.RoleId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <main>
+        <div class="container-fluid px-4">
+            <h1 class="mt-4">Tables</h1>
+            <ol class="breadcrumb mb-4">
+                <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                <li class="breadcrumb-item active">Tables</li>
+            </ol>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-table me-1"></i>
+                    DataTable Example
+                </div>
+                <div class="card-body">
+                    <table id="datatablesSimple">
+                    <a class="btn btn-primary" type="button">Primary</></a>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Mô tả</th>
+                                <th>#</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Mô tả</th>
+                            <th>#</th>
+                            </tr>
+                        </tfoot>
+                        <tbody>
+                            @* <tr>
+                                <td>Tiger Nixon</td>
+                                <td>System Architect</td>
+                                <td>Edinburgh</td>
+                                <td>61</td>
+                            </tr> *@
+                            @if (Model !=null)
+                            {
+                                foreach (var item in Model)
+                                {
+                                <tr>
+                                    <th scope="row">@item.RoleId</th>
+                                    <td>@item.RoleName</td>
+                                    <td>@item.Description</td>
+                                    <td>
+                                        <a class="btn btn-outline-primary" asp-area="Admin" asp-controller="AdminRoles" asp-action="Details" asp-route-id="@item.RoleId">View</a>
+                                        <a class="btn btn-outline-secondary" asp-area="Admin" asp-controller="AdminRoles" asp-action="Edit" asp-route-id="@item.RoleId">Edit</a>
+                                        <a class="btn btn-outline-success" asp-area="Admin" asp-controller="AdminRoles" asp-action="Delete" asp-route-id="@item.RoleId">Delete</a>
+                                    </td>
+                                </tr>  
+                                }
+                            }
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
