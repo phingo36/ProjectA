@@ -35,5 +35,7 @@ public partial class Customer
 
     public bool Active { get; set; }
 
+    public virtual Location? Location { get; set; }
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

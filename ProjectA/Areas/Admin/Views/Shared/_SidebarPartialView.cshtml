@@ -20,10 +20,17 @@
                 </a>
                 
                 
-                <a class="nav-link" href="charts.html">
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseCus" aria-expanded="false" aria-controls="collapseCus">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-child-reaching"></i></div>
                     Quản lý khách hàng
+                    <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                 </a>
+                <div class="collapse" id="collapseCus" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
+                    <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionCus">
+                        <a class="nav-link" asp-area="Admin" asp-controller="AdminCustomers" asp-action="Index">Danh sách khách hàng</a>
+                        <a class="nav-link" href="login.html">Tìm kiếm khách hàng</a>
+                    </nav>
+                </div>
 
                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
                     <div class="sb-nav-link-icon"><i class="fa-brands fa-windows"></i></div>
@@ -32,17 +39,7 @@
                 </a>
                 <div class="collapse" id="collapsePages" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
                     <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">
-                            Authentication
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                        </a>
-                        <div class="collapse" id="pagesCollapseAuth" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" href="login.html">Login</a>
-                                <a class="nav-link" href="register.html">Register</a>
-                                <a class="nav-link" href="password.html">Forgot Password</a>
-                            </nav>
-                        </div>
+                        
                         @* <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseError" aria-expanded="false" aria-controls="pagesCollapseError">
                             Error
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
@@ -57,7 +54,7 @@
                         <a class="nav-link" href="login.html">Quản lý danh mục</a>
                         <a class="nav-link" asp-area="Admin" asp-controller="AdminRoles" asp-action="index">Quản lý quyền truy cập</a>
                         <a class="nav-link" href="login.html">Quản lý Tỉnh/Thành</a>
-                        <a class="nav-link" href="login.html">Quản lý tài khoản</a>
+                        <a class="nav-link" asp-area="Admin" asp-controller="AdminAccounts" asp-action="index">Quản lý tài khoản</a>
                     </nav>
                 </div>
 

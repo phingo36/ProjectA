@@ -45,7 +45,7 @@ public partial class ProjectAContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=PHI;database=ProjectA;Integrated Security=true;TrustServerCertificate=True;");
+        => optionsBuilder.UseSqlServer("Server=PHI;database=ProjectA;TrustServerCertificate=True;Trusted_Connection=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -126,6 +126,10 @@ public partial class ProjectAContext : DbContext
             entity.Property(e => e.Salt)
                 .HasMaxLength(8)
                 .IsFixedLength();
+
+            entity.HasOne(d => d.Location).WithMany(p => p.Customers)
+                .HasForeignKey(d => d.LocationId)
+                .HasConstraintName("FK_Customers_Locations");
         });
 
         modelBuilder.Entity<Location>(entity =>
