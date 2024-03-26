@@ -1,98 +1,74 @@
 ﻿@model ProjectA.Models.Product
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Chỉnh sửa sản phẩm: " + Model.ProductName;
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
 <h1>Edit</h1>
+<div class="page-header">
+    <div class="header-sub-title">
+        <nav class="breadcrumb breadcrumb-dash">
+            <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="breadcrumb-item"><i class="fa fa-house"></i>Home</a>
+            <a class="breadcrumb-item" asp-area="Admin" asp-controller="AdminProducts" asp-action="Index">Danh sách sản phẩm</a>
+            <span class="breadcrumb-item active">Chỉnh sửa sản phẩm: @Model.ProductName</span>
+        </nav>
+    </div>
+</div>
 
 <h4>Product</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
+    <div class="col-md-8">
+        <form asp-controller="AdminProducts" asp-action="Edit" asp-route-id="@Model.ProductId" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ProductId" />
+            <input type="hidden" asp-for="Thumbnail" />
+            <input type="hidden" asp-for="DateCreated" />
             <div class="form-group">
-                <label asp-for="ProductName" class="control-label"></label>
+                <label asp-for="ProductName" class="control-label">Tên sản phẩm</label>
                 <input asp-for="ProductName" class="form-control" />
                 <span asp-validation-for="ProductName" class="text-danger"></span>
             </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label asp-for="Price" class="control-label">Giá bán</label>
+                    <input asp-for="Price" class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="Discount" class="control-label">Giá giảm</label>
+                    <input asp-for="Discount" class="form-control" />
+                    <span asp-validation-for="Discount" class="text-danger"></span>
+                </div>
+            </div>
+
             <div class="form-group">
-                <label asp-for="ShortDesc" class="control-label"></label>
-                <input asp-for="ShortDesc" class="form-control" />
-                <span asp-validation-for="ShortDesc" class="text-danger"></span>
+                <label for="productCategory" class="control-label">Danh mục sản phẩm</label>
+                <select class="form-select" asp-for="CatId" style="min-width: 200px;" asp-items="ViewBag.DanhMuc">
+                    <option value="" disabled selected>Chọn danh mục</option>
+                </select>
             </div>
             <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+                <label asp-for="UnitInStock" class="control-label">Số lượng tồn kho</label>
+                <input asp-for="UnitInStock" class="form-control" />
+                <span asp-validation-for="UnitInStock" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CatId" class="control-label"></label>
-                <select asp-for="CatId" class="form-control" asp-items="ViewBag.CatId"></select>
-                <span asp-validation-for="CatId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Discount" class="control-label"></label>
-                <input asp-for="Discount" class="form-control" />
-                <span asp-validation-for="Discount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Thumbnail" class="control-label"></label>
-                <input asp-for="Thumbnail" class="form-control" />
+                <label asp-for="Thumbnail" class="control-label">Ảnh đại diện</label>
+                <input name="fThumb" type="file" asp-for="Thumbnail" class="form-control-file" />
                 <span asp-validation-for="Thumbnail" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Video" class="control-label"></label>
-                <input asp-for="Video" class="form-control" />
-                <span asp-validation-for="Video" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DateCreated" class="control-label"></label>
-                <input asp-for="DateCreated" class="form-control" />
-                <span asp-validation-for="DateCreated" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DateModified" class="control-label"></label>
-                <input asp-for="DateModified" class="form-control" />
-                <span asp-validation-for="DateModified" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="BestSellers" /> @Html.DisplayNameFor(model => model.BestSellers)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="HomeFlag" /> @Html.DisplayNameFor(model => model.HomeFlag)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Active" /> @Html.DisplayNameFor(model => model.Active)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="Tags" class="control-label"></label>
-                <input asp-for="Tags" class="form-control" />
-                <span asp-validation-for="Tags" class="text-danger"></span>
+                <label asp-for="Description" class="control-label">Mô tả sản phẩm</label>
+                <input asp-for="Description" id="Description"></input>
+                <span asp-validation-for="Description" class="text-danger"></span>
+
             </div>
             <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Alias" class="control-label"></label>
-                <input asp-for="Alias" class="form-control" />
-                <span asp-validation-for="Alias" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="MetaDesc" class="control-label"></label>
@@ -105,12 +81,42 @@
                 <span asp-validation-for="MetaKey" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="UnitInStock" class="control-label"></label>
-                <input asp-for="UnitInStock" class="form-control" />
-                <span asp-validation-for="UnitInStock" class="text-danger"></span>
+                <label asp-for="Tags" class="control-label"></label>
+                <input asp-for="Tags" class="form-control" />
+                <span asp-validation-for="Tags" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <label asp-for="ShortDesc" class="control-label">Mô tả ngắn</label>
+                <input asp-for="ShortDesc" class="form-control" />
+                <span asp-validation-for="ShortDesc" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Video" class="control-label"></label>
+                <input asp-for="Video" class="form-control" />
+                <span asp-validation-for="Video" class="text-danger"></span>
+            </div>
+            <div class="form-group form-switch">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Active" /> Public
+                </label>
+            </div>
+            <div class="form-group form-switch">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="HomeFlag" /> @Html.DisplayNameFor(model => model.HomeFlag)
+                </label>
+            </div>
+            <div class="form-group form-switch">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="BestSellers" /> @Html.DisplayNameFor(model => model.BestSellers)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="Alias" class="control-label"></label>
+                <input asp-for="Alias" class="form-control" />
+                <span asp-validation-for="Alias" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Edit" class="btn btn-primary" />
             </div>
         </form>
     </div>
@@ -119,4 +125,17 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
+
+@section scripts {
+    <script src="~/lib/tinymce/tinymce.min.js"></script>
+    <script>
+        tinymce.init({
+            selector: '#Description',
+            license_key: 'gpl'
+        });
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
 

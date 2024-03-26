@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PagedList.Core;
+using ProjectA.Helper;
 using ProjectA.Models;
 
 namespace ProjectA.Areas.Admin.Controllers
@@ -14,10 +16,12 @@ namespace ProjectA.Areas.Admin.Controllers
     public class AdminProductsController : Controller
     {
         private readonly ProjectAContext _context;
+        public INotyfService _notifyfService { get; }
 
-        public AdminProductsController(ProjectAContext context)
+        public AdminProductsController(ProjectAContext context, INotyfService notifyService)
         {
             _context = context;
+            _notifyfService = notifyService;
         }
 
         // GET: Admin/AdminProducts
@@ -97,12 +101,25 @@ namespace ProjectA.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,ProductName,ShortDesc,Description,CatId,Price,Discount,Thumbnail,Video,DateCreated,DateModified,BestSellers,HomeFlag,Active,Tags,Title,Alias,MetaDesc,MetaKey,UnitInStock")] Product product)
+        public async Task<IActionResult> Create([Bind("ProductId,ProductName,ShortDesc,Description,CatId,Price,Discount,Thumbnail,Video,DateCreated,DateModified,BestSellers,HomeFlag,Active,Tags,Title,Alias,MetaDesc,MetaKey,UnitInStock")] Product product, Microsoft.AspNetCore.Http.IFormFile fThumb)
         {
             if (ModelState.IsValid)
             {
+                product.ProductName = Utilities.ToTitleCase(product.ProductName);
+                if (fThumb != null)
+                {
+                    string extension = Path.GetExtension(fThumb.FileName);
+                    string image = Utilities.SEOUrl(product.ProductName) + extension;
+                    product.Thumbnail = await Utilities.UploadFile(fThumb, @"products", image.ToLower());
+                }
+                if (string.IsNullOrEmpty(product.Thumbnail)) product.Thumbnail = "default.jpg";
+                product.Alias = Utilities.SEOUrl(product.ProductName);
+                product.DateModified = DateTime.Now;
+                product.DateCreated = DateTime.Now;
+
                 _context.Add(product);
                 await _context.SaveChangesAsync();
+                _notifyfService.Success("Thêm sản phẩm thành công");
                 return RedirectToAction(nameof(Index));
             }
             ViewData["DanhMuc"] = new SelectList(_context.Categories, "CatId", "CatName", product.CatId);
@@ -122,7 +139,7 @@ namespace ProjectA.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            ViewData["CatId"] = new SelectList(_context.Categories, "CatId", "CatName", product.CatId);
+            ViewData["DanhMuc"] = new SelectList(_context.Categories, "CatId", "CatName", product.CatId);
             return View(product);
         }
 
@@ -131,7 +148,7 @@ namespace ProjectA.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductId,ProductName,ShortDesc,Description,CatId,Price,Discount,Thumbnail,Video,DateCreated,DateModified,BestSellers,HomeFlag,Active,Tags,Title,Alias,MetaDesc,MetaKey,UnitInStock")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("ProductId,ProductName,ShortDesc,Description,CatId,Price,Discount,Thumbnail,Video,DateCreated,DateModified,BestSellers,HomeFlag,Active,Tags,Title,Alias,MetaDesc,MetaKey,UnitInStock")] Product product, Microsoft.AspNetCore.Http.IFormFile fThumb)
         {
             if (id != product.ProductId)
             {
@@ -142,8 +159,20 @@ namespace ProjectA.Areas.Admin.Controllers
             {
                 try
                 {
+                    product.ProductName = Utilities.ToTitleCase(product.ProductName);
+                    if (fThumb != null)
+                    {
+                        string extension = Path.GetExtension(fThumb.FileName);
+                        string image = Utilities.SEOUrl(product.ProductName) + extension;
+                        product.Thumbnail = await Utilities.UploadFile(fThumb, @"products", image.ToLower());
+                    }
+                    if (string.IsNullOrEmpty(product.Thumbnail)) product.Thumbnail = "default.jpg";
+                    product.Alias = Utilities.SEOUrl(product.ProductName);
+                    product.DateModified = DateTime.Now;
+
                     _context.Update(product);
                     await _context.SaveChangesAsync();
+                    _notifyfService.Success("Cập nhật sản phẩm thành công");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -193,6 +222,7 @@ namespace ProjectA.Areas.Admin.Controllers
             }
 
             await _context.SaveChangesAsync();
+            _notifyfService.Success("Xóa sản phẩm thành công");
             return RedirectToAction(nameof(Index));
         }
 

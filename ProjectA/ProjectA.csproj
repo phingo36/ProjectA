@@ -17,6 +17,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2" />
     <PackageReference Include="PagedList.Core.Mvc" Version="3.0.0" />
+    <PackageReference Include="TinyMCE" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>

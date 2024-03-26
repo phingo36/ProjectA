@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,12 @@ namespace ProjectA.Areas.Admin.Controllers
     public class AdminRolesController : Controller
     {
         private readonly ProjectAContext _context;
+        public INotyfService _notifyfService { get; }
 
-        public AdminRolesController(ProjectAContext context)
+        public AdminRolesController(ProjectAContext context, INotyfService notifyService)
         {
             _context = context;
+            _notifyfService = notifyService;
         }
 
         // GET: Admin/AdminRoles

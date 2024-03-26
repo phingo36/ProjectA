@@ -4,7 +4,14 @@
     ViewData["Title"] = "Details";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
-
+<div class="page-header">
+    <div class="header-sub-title">
+        <nav class="breadcrumb breadcrumb-dash">
+            <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="breadcrumb-item"><i class="fa fa-house"></i>Home</a>
+            <span class="breadcrumb-item active">Chi tiết quyền truy cập</span>
+        </nav>
+    </div>
+</div>
 <div class="card">
     <div class="card-body">
         <h4 class="card-title">Basic Info</h4>
@@ -15,7 +22,7 @@
                     <td class="text-dark font-weight-semibold">@Model.RoleId</td>
                 </tr>
                 <tr>
-                    <td>Tên người truy cập</td>
+                    <td>Tên quyền truy cập</td>
                     <td class="text-dark font-weight-semibold">@Model.RoleName</td>
                 </tr>
                 <tr>
