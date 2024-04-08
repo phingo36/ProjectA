@@ -20,7 +20,7 @@
         <div class="table-responsive">
             <table class="table table-striped">
                 <tr>
-                    <td>ID:</td>
+                    <td>ID</td>
                     <td class="text-dark font-weight-semibold">@Model.ProductId</td>
                 </tr>
                 <tr>
@@ -130,7 +130,7 @@
                 </tr>
                 <tr>
                     <td>Mô tả sản phẩm</td>
-                    <td class="text-dark font-weight-semibold">@Model.Description</td>
+                    <td class="text-dark font-weight-semibold">@Html.Raw(Model.Description)</td>
                 </tr>
             </table>
         </div>

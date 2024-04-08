@@ -6,12 +6,20 @@
 }
 
 <h1>Create</h1>
-
+<div class="page-header">
+    <div class="header-sub-title">
+        <nav class="breadcrumb breadcrumb-dash">
+            <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="breadcrumb-item"><i class="fa fa-house"></i>Home</a>
+            <a class="breadcrumb-item" asp-area="Admin" asp-controller="AdminPages" asp-action="Index">Danh sách page</a>
+            <span class="breadcrumb-item active">Tạo mới page</span>
+        </nav>
+    </div>
+</div>
 <h4>Page</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-controller="AdminPages" asp-action="Create" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="PageName" class="control-label"></label>
@@ -25,7 +33,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Thumb" class="control-label"></label>
-                <input asp-for="Thumb" class="form-control" />
+                <input name="fThumb" asp-for="Thumb" type="file" class="form-control" />
                 <span asp-validation-for="Thumb" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
@@ -52,11 +60,6 @@
                 <label asp-for="Alias" class="control-label"></label>
                 <input asp-for="Alias" class="form-control" />
                 <span asp-validation-for="Alias" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedDate" class="control-label"></label>
-                <input asp-for="CreatedDate" class="form-control" />
-                <span asp-validation-for="CreatedDate" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Ordering" class="control-label"></label>

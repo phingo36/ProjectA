@@ -20,14 +20,17 @@
         <div class="row m-b-30">
             <div class="col-lg-12">
                 <div class="d-md-flex justify-content-between">
+                    <form class="form-inline">
+                        <input id="keyword" class="form-control mr-sm-2" type="text" placeholder="Tìm kiếm sản phẩm">
+                    </form>
                     <div>
-                        <select class="custom-select" id="txtCatID" name="catID" style="min-width: 200px;" asp-items="ViewBag.DanhMuc">
+                        <select class="form-select" id="txtCatID" name="catID" style="min-width: 200px;" asp-items="ViewBag.DanhMuc">
                             <option selected>Chọn danh mục</option>
                             <option value="0">Tất cả</option>
                         </select>
                     </div>
                     <div>
-                        <select class="custom-select" id="idstatus" name="idstatus" style="min-width: 200px;" asp-items="ViewBag.IsTrangthai">
+                        <select class="form-select" id="idstatus" name="idstatus" style="min-width: 200px;" asp-items="ViewBag.IsTrangthai">
                             <option value="" disabled selected>Status</option>
                         </select>
                     </div>
@@ -50,7 +53,7 @@
                         <th>#</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="records_table">
                     @if (Model != null)
                     {
                         foreach (var item in Model)
@@ -92,7 +95,7 @@
             </table>
             <div aria-label="Page navigation example">
                 <ul class="pagination">
-                    <pager class="page-container" list="@Model" asp-area="Admin" asp-controller="AdminProducts" asp-route-CatID ="@ViewBag.CurrentCateID" asp-action="Index" />
+                    <pager class="page-container" list="@Model" asp-area="Admin" asp-controller="AdminProducts" asp-route-CatID="@ViewBag.CurrentCateID" asp-action="Index" />
                 </ul>
             </div>
         </div>
@@ -126,6 +129,23 @@
                     }
                 });
             });
+            $("#keyword").keyup(function () {
+                var strkeyword = $('#keyword').val();
+                $.ajax({
+                    url: '/Admin/Search/FindProduct/',
+                    datatype: "json",
+                    type: "POST",
+                    data: { keyword: strkeyword },
+                    async: true,
+                    success: function (results) {
+                        $("#records_table").html("");
+                        $("#records_table").html(results);
+                    },
+                    error: function (xhr) {
+                        alert('error');
+                    }
+                })
+            })
         });
 
     </script>

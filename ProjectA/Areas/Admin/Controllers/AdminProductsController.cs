@@ -154,27 +154,15 @@ namespace ProjectA.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
+            if (fThumb == null)
             {
                 try
                 {
-                    product.ProductName = Utilities.ToTitleCase(product.ProductName);
-                    if (fThumb != null)
-                    {
-                        string extension = Path.GetExtension(fThumb.FileName);
-                        string image = Utilities.SEOUrl(product.ProductName) + extension;
-                        product.Thumbnail = await Utilities.UploadFile(fThumb, @"products", image.ToLower());
-                    }
-                    if (string.IsNullOrEmpty(product.Thumbnail)) product.Thumbnail = "default.jpg";
-                    product.Alias = Utilities.SEOUrl(product.ProductName);
-                    product.DateModified = DateTime.Now;
-
                     _context.Update(product);
                     await _context.SaveChangesAsync();
-                    _notifyfService.Success("Cập nhật sản phẩm thành công");
+                    _notifyfService.Success("Cập nhật thành công");
                 }
-                catch (DbUpdateConcurrencyException)
+                catch
                 {
                     if (!ProductExists(product.ProductId))
                     {
@@ -187,6 +175,42 @@ namespace ProjectA.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            else
+            {
+                if (ModelState.IsValid)
+                {
+                    try
+                    {
+                        product.ProductName = Utilities.ToTitleCase(product.ProductName);
+                        if (fThumb != null)
+                        {
+                            string extension = Path.GetExtension(fThumb.FileName);
+                            string image = Utilities.SEOUrl(product.ProductName) + extension;
+                            product.Thumbnail = await Utilities.UploadFile(fThumb, @"products", image.ToLower());
+                        }
+                        if (string.IsNullOrEmpty(product.Thumbnail)) product.Thumbnail = "default.jpg";
+                        product.Alias = Utilities.SEOUrl(product.ProductName);
+                        product.DateModified = DateTime.Now;
+
+                        _context.Update(product);
+                        await _context.SaveChangesAsync();
+                        _notifyfService.Success("Cập nhật sản phẩm thành công");
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!ProductExists(product.ProductId))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            
             ViewData["DanhMuc"] = new SelectList(_context.Categories, "CatId", "CatName", product.CatId);
             return View(product);
         }
