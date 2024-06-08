@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using PagedList.Core;
+using ProjectA.Helper;
 using ProjectA.Models;
 
 namespace ProjectA.Areas.Admin.Controllers
@@ -14,17 +17,19 @@ namespace ProjectA.Areas.Admin.Controllers
     public class AdminPostsController : Controller
     {
         private readonly ProjectAContext _context;
+        public INotyfService _notifyfService { get; }
 
-        public AdminPostsController(ProjectAContext context)
+        public AdminPostsController(ProjectAContext context, INotyfService notifyfService)
         {
             _context = context;
+            _notifyfService = notifyfService;
         }
 
         // GET: Admin/AdminPosts
         public IActionResult Index(int? page)
         {
             var pageNumber = page == null || page <= 0 ? 1 : page.Value;
-            var pageSize = 20;
+            var pageSize = 10;
             var lsPosts = _context.Posts
                 .AsNoTracking()
                 .OrderByDescending(x => x.PostId);
@@ -66,10 +71,25 @@ namespace ProjectA.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PostId,Title,Scontents,Contents,Thumb,Published,Alias,CreatedDate,Author,AccountId,Tags,IsHot,IsNewfeed,MetaKey,MetaDesc,Views")] Post post)
+        public async Task<IActionResult> Create([Bind("PostId,Title,Scontents,Contents,Thumb,Published,Alias,CreatedDate,Author,AccountId,Tags,IsHot,IsNewfeed,MetaKey,MetaDesc,Views")] Post post, Microsoft.AspNetCore.Http.IFormFile fThumb)
         {
             if (ModelState.IsValid)
             {
+                if (fThumb != null)
+                {
+                    string extension = Path.GetExtension(fThumb.FileName);
+                    if (!string.IsNullOrEmpty(post.Title))
+                    {
+                        string imageName = Utilities.SEOUrl(post.Title) + extension;
+                        post.Thumb = await Utilities.UploadFile(fThumb, @"posts", imageName.ToLower());
+                    }
+                }
+                if (string.IsNullOrEmpty(post.Thumb)) post.Thumb = "default.jpg";
+                if (!string.IsNullOrEmpty(post.Title))
+                {
+                    post.Alias = Utilities.SEOUrl(post.Title);
+                }
+                post.CreatedDate = DateTime.Now;
                 _context.Add(post);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -100,21 +120,22 @@ namespace ProjectA.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PostId,Title,Scontents,Contents,Thumb,Published,Alias,CreatedDate,Author,AccountId,Tags,IsHot,IsNewfeed,MetaKey,MetaDesc,Views")] Post post)
+        public async Task<IActionResult> Edit(int id, [Bind("PostId,Title,Scontents,Contents,Thumb,Published,Alias,CreatedDate,Author,AccountId,Tags,IsHot,IsNewfeed,MetaKey,MetaDesc,Views")] Post post, Microsoft.AspNetCore.Http.IFormFile fThumb)
         {
             if (id != post.PostId)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (fThumb == null)
             {
                 try
                 {
                     _context.Update(post);
                     await _context.SaveChangesAsync();
+                    _notifyfService.Success("Cập nhật thành công");
                 }
-                catch (DbUpdateConcurrencyException)
+                catch
                 {
                     if (!PostExists(post.PostId))
                     {
@@ -126,6 +147,45 @@ namespace ProjectA.Areas.Admin.Controllers
                     }
                 }
                 return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                if (ModelState.IsValid)
+                {
+                    try
+                    {
+                        if (fThumb != null)
+                        {
+                            string extension = Path.GetExtension(fThumb.FileName);
+                            if (!string.IsNullOrEmpty(post.Title))
+                            {
+                                string imageName = Utilities.SEOUrl(post.Title) + extension;
+                                post.Thumb = await Utilities.UploadFile(fThumb, @"posts", imageName.ToLower());
+                            }
+                        }
+                        if (string.IsNullOrEmpty(post.Thumb)) post.Thumb = "default.jpg";
+                        if (!string.IsNullOrEmpty(post.Title))
+                        {
+                            post.Alias = Utilities.SEOUrl(post.Title);
+                        }
+
+                        _context.Update(post);
+                        await _context.SaveChangesAsync();
+                        _notifyfService.Success("Cập nhật thành công");
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!PostExists(post.PostId))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction(nameof(Index));
+                }
             }
             ViewData["AccountId"] = new SelectList(_context.Accounts, "AccountId", "AccountId", post.AccountId);
             return View(post);
@@ -162,6 +222,7 @@ namespace ProjectA.Areas.Admin.Controllers
             }
 
             await _context.SaveChangesAsync();
+            _notifyfService.Success("Xóa thành công");
             return RedirectToAction(nameof(Index));
         }
 

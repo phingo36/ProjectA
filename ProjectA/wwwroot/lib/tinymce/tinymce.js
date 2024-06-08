@@ -1,5 +1,5 @@
 /**
- * TinyMCE version 7.0.0 (2024-03-20)
+ * TinyMCE version 7.1.2 (TBD)
  */
 
 (function () {
@@ -2096,27 +2096,99 @@
       });
     };
 
-    const isNonHtmlElementRootName = name => name.toLowerCase() === 'svg';
+    const Cell = initial => {
+      let value = initial;
+      const get = () => {
+        return value;
+      };
+      const set = v => {
+        value = v;
+      };
+      return {
+        get,
+        set
+      };
+    };
+
+    const singleton = doRevoke => {
+      const subject = Cell(Optional.none());
+      const revoke = () => subject.get().each(doRevoke);
+      const clear = () => {
+        revoke();
+        subject.set(Optional.none());
+      };
+      const isSet = () => subject.get().isSome();
+      const get = () => subject.get();
+      const set = s => {
+        revoke();
+        subject.set(Optional.some(s));
+      };
+      return {
+        clear,
+        isSet,
+        get,
+        set
+      };
+    };
+    const repeatable = delay => {
+      const intervalId = Cell(Optional.none());
+      const revoke = () => intervalId.get().each(id => clearInterval(id));
+      const clear = () => {
+        revoke();
+        intervalId.set(Optional.none());
+      };
+      const isSet = () => intervalId.get().isSome();
+      const get = () => intervalId.get();
+      const set = functionToRepeat => {
+        revoke();
+        intervalId.set(Optional.some(setInterval(functionToRepeat, delay)));
+      };
+      return {
+        clear,
+        isSet,
+        get,
+        set
+      };
+    };
+    const value$2 = () => {
+      const subject = singleton(noop);
+      const on = f => subject.get().each(f);
+      return {
+        ...subject,
+        on
+      };
+    };
+
+    const nodeNameToNamespaceType = name => {
+      const lowerCaseName = name.toLowerCase();
+      if (lowerCaseName === 'svg') {
+        return 'svg';
+      } else if (lowerCaseName === 'math') {
+        return 'math';
+      } else {
+        return 'html';
+      }
+    };
+    const isNonHtmlElementRootName = name => nodeNameToNamespaceType(name) !== 'html';
     const isNonHtmlElementRoot = node => isNonHtmlElementRootName(node.nodeName);
-    const toScopeType = node => (node === null || node === void 0 ? void 0 : node.nodeName) === 'svg' ? 'svg' : 'html';
-    const namespaceElements = ['svg'];
+    const toScopeType = node => nodeNameToNamespaceType(node.nodeName);
+    const namespaceElements = [
+      'svg',
+      'math'
+    ];
     const createNamespaceTracker = () => {
-      let scopes = [];
-      const peek = () => scopes[scopes.length - 1];
+      const currentScope = value$2();
+      const current = () => currentScope.get().map(toScopeType).getOr('html');
       const track = node => {
         if (isNonHtmlElementRoot(node)) {
-          scopes.push(node);
+          currentScope.set(node);
+        } else if (currentScope.get().exists(scopeNode => !scopeNode.contains(node))) {
+          currentScope.clear();
         }
-        let currentScope = peek();
-        if (currentScope && !currentScope.contains(node)) {
-          scopes.pop();
-          currentScope = peek();
-        }
-        return toScopeType(currentScope);
+        return current();
       };
-      const current = () => toScopeType(peek());
       const reset = () => {
-        scopes = [];
+        currentScope.clear();
       };
       return {
         track,
@@ -2128,7 +2200,8 @@
     const transparentBlockAttr = 'data-mce-block';
     const elementNames = map => filter$5(keys(map), key => !/[A-Z]/.test(key));
     const makeSelectorFromSchemaMap = map => map$3(elementNames(map), name => {
-      return `${ name }:` + map$3(namespaceElements, ns => `not(${ ns } ${ name })`).join(':');
+      const escapedName = CSS.escape(name);
+      return `${ escapedName }:` + map$3(namespaceElements, ns => `not(${ ns } ${ escapedName })`).join(':');
     }).join(',');
     const updateTransparent = (blocksSelector, transparent) => {
       if (isNonNullable(transparent.querySelector(blocksSelector))) {
@@ -2681,7 +2754,10 @@
           'dropzone',
           'hidden',
           'spellcheck',
-          'translate'
+          'translate',
+          'itemprop',
+          'itemscope',
+          'itemtype'
         ] : [],
         ...type !== 'html5-strict' ? ['xml:lang'] : []
       ]);
@@ -3488,8 +3564,8 @@
       return hexColour(value);
     };
 
-    const rgbRegex = /^\s*rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)\s*$/i;
-    const rgbaRegex = /^\s*rgba\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d?(?:\.\d+)?)\s*\)\s*$/i;
+    const rgbRegex = /^\s*rgb\s*\(\s*(\d+)\s*[,\s]\s*(\d+)\s*[,\s]\s*(\d+)\s*\)\s*$/i;
+    const rgbaRegex = /^\s*rgba\s*\(\s*(\d+)\s*[,\s]\s*(\d+)\s*[,\s]\s*(\d+)\s*[,\s]\s*((?:\d?\.\d+|\d+)%?)\s*\)\s*$/i;
     const rgbaColour = (red, green, blue, alpha) => ({
       red,
       green,
@@ -3503,10 +3579,15 @@
       const a = parseFloat(alpha);
       return rgbaColour(r, g, b, a);
     };
-    const fromString = rgbaString => {
-      if (rgbaString === 'transparent') {
-        return Optional.some(rgbaColour(0, 0, 0, 0));
+    const getColorFormat = colorString => {
+      if (rgbRegex.test(colorString)) {
+        return 'rgb';
+      } else if (rgbaRegex.test(colorString)) {
+        return 'rgba';
       }
+      return 'other';
+    };
+    const fromString = rgbaString => {
       const rgbMatch = rgbRegex.exec(rgbaString);
       if (rgbMatch !== null) {
         return Optional.some(fromStringValues(rgbMatch[1], rgbMatch[2], rgbMatch[3], '1'));
@@ -3525,7 +3606,6 @@
       const urlOrStrRegExp = /(?:url(?:(?:\(\s*\"([^\"]+)\"\s*\))|(?:\(\s*\'([^\']+)\'\s*\))|(?:\(\s*([^)\s]+)\s*\))))|(?:\'([^\']+)\')|(?:\"([^\"]+)\")/gi;
       const styleRegExp = /\s*([^:]+):\s*([^;]+);?/g;
       const trimRightRegExp = /\s+$/;
-      const rgbaRegExp = /rgba *\(/i;
       const encodingLookup = {};
       let validStyles;
       let invalidStyles;
@@ -3679,7 +3759,7 @@
                 } else if (name === 'color' || name === 'background-color') {
                   value = value.toLowerCase();
                 }
-                if (!rgbaRegExp.test(value)) {
+                if (getColorFormat(value) === 'rgb') {
                   fromString(value).each(rgba => {
                     value = rgbaToHexString(toString(rgba)).toLowerCase();
                   });
@@ -4970,20 +5050,6 @@
     }
     ScriptLoader.ScriptLoader = new ScriptLoader();
 
-    const Cell = initial => {
-      let value = initial;
-      const get = () => {
-        return value;
-      };
-      const set = v => {
-        value = v;
-      };
-      return {
-        get,
-        set
-      };
-    };
-
     const isDuplicated = (items, item) => {
       const firstIndex = items.indexOf(item);
       return firstIndex !== -1 && items.indexOf(item, firstIndex + 1) > firstIndex;
@@ -5168,55 +5234,6 @@
     AddOnManager.PluginManager = AddOnManager();
     AddOnManager.ThemeManager = AddOnManager();
     AddOnManager.ModelManager = AddOnManager();
-
-    const singleton = doRevoke => {
-      const subject = Cell(Optional.none());
-      const revoke = () => subject.get().each(doRevoke);
-      const clear = () => {
-        revoke();
-        subject.set(Optional.none());
-      };
-      const isSet = () => subject.get().isSome();
-      const get = () => subject.get();
-      const set = s => {
-        revoke();
-        subject.set(Optional.some(s));
-      };
-      return {
-        clear,
-        isSet,
-        get,
-        set
-      };
-    };
-    const repeatable = delay => {
-      const intervalId = Cell(Optional.none());
-      const revoke = () => intervalId.get().each(id => clearInterval(id));
-      const clear = () => {
-        revoke();
-        intervalId.set(Optional.none());
-      };
-      const isSet = () => intervalId.get().isSome();
-      const get = () => intervalId.get();
-      const set = functionToRepeat => {
-        revoke();
-        intervalId.set(Optional.some(setInterval(functionToRepeat, delay)));
-      };
-      return {
-        clear,
-        isSet,
-        get,
-        set
-      };
-    };
-    const value$2 = () => {
-      const subject = singleton(noop);
-      const on = f => subject.get().each(f);
-      return {
-        ...subject,
-        on
-      };
-    };
 
     const first$1 = (fn, rate) => {
       let timer = null;
@@ -17164,29 +17181,39 @@
       return config;
     };
     const sanitizeNamespaceElement = ele => {
-      const xlinkAttrs = [
-        'type',
-        'href',
-        'role',
-        'arcrole',
-        'title',
-        'show',
-        'actuate',
-        'label',
-        'from',
-        'to'
-      ].map(name => `xlink:${ name }`);
-      const config = {
-        IN_PLACE: true,
-        USE_PROFILES: {
-          html: true,
-          svg: true,
-          svgFilters: true
-        },
-        ALLOWED_ATTR: xlinkAttrs
-      };
-      purify().sanitize(ele, config);
-      return ele.innerHTML;
+      const namespaceType = toScopeType(ele);
+      if (namespaceType === 'svg') {
+        const xlinkAttrs = [
+          'type',
+          'href',
+          'role',
+          'arcrole',
+          'title',
+          'show',
+          'actuate',
+          'label',
+          'from',
+          'to'
+        ].map(name => `xlink:${ name }`);
+        const config = {
+          IN_PLACE: true,
+          USE_PROFILES: {
+            html: true,
+            svg: true,
+            svgFilters: true
+          },
+          ALLOWED_ATTR: xlinkAttrs
+        };
+        purify().sanitize(ele, config);
+      } else if (namespaceType === 'math') {
+        const config = {
+          IN_PLACE: true,
+          USE_PROFILES: { mathMl: true }
+        };
+        purify().sanitize(ele, config);
+      } else {
+        throw new Error('Not a namespace element');
+      }
     };
     const getSanitizer = (settings, schema) => {
       const namespaceTracker = createNamespaceTracker();
@@ -19466,7 +19493,7 @@
         return a.type === b.type && a.text === b.text && !a.progressBar && !a.timeout && !b.progressBar && !b.timeout;
       };
       const reposition = () => {
-        each$e(notifications, notification => {
+        getTopNotification().each(notification => {
           notification.reposition();
         });
       };
@@ -19493,11 +19520,7 @@
           editor.editorManager.setActive(editor);
           const notification = getImplementation().open(spec, () => {
             closeNotification(notification);
-            reposition();
-            if (hasEditorOrUiFocus(editor)) {
-              getTopNotification().fold(() => editor.focus(), top => focus$1(SugarElement.fromDom(top.getEl())));
-            }
-          });
+          }, () => hasEditorOrUiFocus(editor));
           addNotification(notification);
           reposition();
           editor.dispatch('OpenNotification', { notification: { ...notification } });
@@ -19524,7 +19547,7 @@
           }
           reposition();
         });
-        editor.on('show ResizeEditor ResizeWindow NodeChange', () => {
+        editor.on('show ResizeEditor NodeChange', () => {
           requestAnimationFrame(reposition);
         });
         editor.on('remove', () => {
@@ -19532,6 +19555,7 @@
             getImplementation().close(notification);
           });
         });
+        editor.addShortcut('alt+F12', 'Focus to notification', () => getTopNotification().map(notificationApi => SugarElement.fromDom(notificationApi.getEl())).each(elm => focus$1(elm)));
       };
       registerEvents(editor);
       return {
@@ -21238,6 +21262,7 @@
       const containerElm = SugarElement.fromDom(pos.container());
       return getParentBlock$2(rootElm, containerElm).map(block => blockPosition(block, pos));
     };
+    const isNotAncestorial = blockBoundary => !(contains(blockBoundary.to.block, blockBoundary.from.block) || contains(blockBoundary.from.block, blockBoundary.to.block));
     const isDifferentBlocks = blockBoundary => !eq(blockBoundary.from.block, blockBoundary.to.block);
     const getClosestHost = (root, scope) => {
       const isRoot = node => eq(node, root);
@@ -21250,7 +21275,7 @@
     };
     const isEditable$1 = blockBoundary => isContentEditableFalse$b(blockBoundary.from.block.dom) === false && isContentEditableFalse$b(blockBoundary.to.block.dom) === false;
     const hasValidBlocks = blockBoundary => {
-      const isValidBlock = block => isTextBlock$2(block) || hasBlockAttr(block.dom);
+      const isValidBlock = block => isTextBlock$2(block) || hasBlockAttr(block.dom) || isListItem$1(block);
       return isValidBlock(blockBoundary.from.block) && isValidBlock(blockBoundary.to.block);
     };
     const skipLastBr = (schema, rootNode, forward, blockPosition) => {
@@ -21269,7 +21294,7 @@
     const readFromRange = (schema, rootNode, forward, rng) => {
       const fromBlockPos = getBlockPosition(rootNode, CaretPosition.fromRangeStart(rng));
       const toBlockPos = fromBlockPos.bind(blockPos => fromPosition(forward, rootNode, blockPos.position).bind(to => getBlockPosition(rootNode, to).map(blockPos => skipLastBr(schema, rootNode, forward, blockPos))));
-      return lift2(fromBlockPos, toBlockPos, blockBoundary).filter(blockBoundary => isDifferentBlocks(blockBoundary) && hasSameHost(rootNode, blockBoundary) && isEditable$1(blockBoundary) && hasValidBlocks(blockBoundary));
+      return lift2(fromBlockPos, toBlockPos, blockBoundary).filter(blockBoundary => isDifferentBlocks(blockBoundary) && hasSameHost(rootNode, blockBoundary) && isEditable$1(blockBoundary) && hasValidBlocks(blockBoundary) && isNotAncestorial(blockBoundary));
     };
     const read$1 = (schema, rootNode, forward, rng) => rng.collapsed ? readFromRange(schema, rootNode, forward, rng) : Optional.none();
 
@@ -23954,7 +23979,10 @@
 
     const setupEditorInput = (editor, api) => {
       const update = last(api.load, 50);
-      editor.on('input', () => {
+      editor.on('input', e => {
+        if (e.inputType === 'insertCompositionText' && !editor.composing) {
+          return;
+        }
         update.throttle();
       });
       editor.on('keydown', e => {
@@ -23997,23 +24025,20 @@
           lookupInfo.lookupData.then(lookupData => {
             activeAutocompleter.get().map(ac => {
               const context = lookupInfo.context;
-              if (ac.trigger === context.trigger) {
-                if (context.text.length - ac.matchLength >= 10) {
-                  cancelIfNecessary();
-                } else {
-                  activeAutocompleter.set({
-                    ...ac,
-                    matchLength: context.text.length
-                  });
-                  if (uiActive.get()) {
-                    fireAutocompleterUpdateActiveRange(editor, { range: context.range });
-                    fireAutocompleterUpdate(editor, { lookupData });
-                  } else {
-                    uiActive.set(true);
-                    fireAutocompleterUpdateActiveRange(editor, { range: context.range });
-                    fireAutocompleterStart(editor, { lookupData });
-                  }
-                }
+              if (ac.trigger !== context.trigger) {
+                return;
+              }
+              activeAutocompleter.set({
+                ...ac,
+                matchLength: context.text.length
+              });
+              if (uiActive.get()) {
+                fireAutocompleterUpdateActiveRange(editor, { range: context.range });
+                fireAutocompleterUpdate(editor, { lookupData });
+              } else {
+                uiActive.set(true);
+                fireAutocompleterUpdateActiveRange(editor, { range: context.range });
+                fireAutocompleterStart(editor, { lookupData });
               }
             });
           });
@@ -28973,9 +28998,10 @@
       return iframeHTML;
     };
     const createIframe = (editor, boxInfo) => {
-      const iframeTitle = editor.translate('Rich Text Area');
+      const iframeTitle = Env.browser.isFirefox() ? getIframeAriaText(editor) : 'Rich Text Area';
+      const translatedTitle = editor.translate(iframeTitle);
       const tabindex = getOpt(SugarElement.fromDom(editor.getElement()), 'tabindex').bind(toInt);
-      const ifr = createIframeElement(editor.id, iframeTitle, getIframeAttrs(editor), tabindex).dom;
+      const ifr = createIframeElement(editor.id, translatedTitle, getIframeAttrs(editor), tabindex).dom;
       ifr.onload = () => {
         ifr.onload = null;
         editor.dispatch('load');
@@ -31316,8 +31342,8 @@
       documentBaseURL: null,
       suffix: null,
       majorVersion: '7',
-      minorVersion: '0.0',
-      releaseDate: '2024-03-20',
+      minorVersion: '1.2',
+      releaseDate: 'TBD',
       i18n: I18n,
       activeEditor: null,
       focusedEditor: null,
@@ -31405,7 +31431,7 @@
         };
         const findTargets = options => {
           if (Env.browser.isIE() || Env.browser.isEdge()) {
-            initError('TinyMCE does not support the browser you are using. For a list of supported' + ' browsers please see: https://www.tiny.cloud/docs/tinymce/6/support/#supportedwebbrowsers');
+            initError('TinyMCE does not support the browser you are using. For a list of supported' + ' browsers please see: https://www.tiny.cloud/docs/tinymce/7/support/#supportedwebbrowsers');
             return [];
           } else if (isQuirksMode) {
             initError('Failed to initialize the editor as the document is not in standards mode. ' + 'TinyMCE requires standards mode.');

@@ -1,36 +1,39 @@
 ﻿@model ProjectA.Models.Post
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Tạo mới tin tức";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
 <h1>Create</h1>
-
-<h4>Post</h4>
+<div class="page-header">
+    <div class="header-sub-title">
+        <nav class="breadcrumb breadcrumb-dash">
+            <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="breadcrumb-item"><i class="fa fa-house"></i>Home</a>
+            <a class="breadcrumb-item" asp-area="Admin" asp-controller="AdminPosts" asp-action="Index">Danh sách tin tức</a>
+            <span class="breadcrumb-item active">Tạo mới tin tức</span>
+        </nav>
+    </div>
+</div>
+<h4>Danh mục</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-controller="AdminPosts" asp-action="Create" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
+                <label asp-for="Title" class="control-label">Tiêu đề</label>
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Scontents" class="control-label"></label>
-                <input asp-for="Scontents" class="form-control" />
-                <span asp-validation-for="Scontents" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Contents" class="control-label"></label>
-                <input asp-for="Contents" class="form-control" />
+                <label asp-for="Contents" class="control-label">Nội dung</label>
+                <input asp-for="Contents" id="Contents" class="form-control" />
                 <span asp-validation-for="Contents" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Thumb" class="control-label"></label>
-                <input asp-for="Thumb" class="form-control" />
+                <label asp-for="Thumb" class="control-label">Ảnh đại diện</label>
+                <input name="fThumb" asp-for="Thumb" type="file" class="form-control" />
                 <span asp-validation-for="Thumb" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
@@ -38,15 +41,35 @@
                     <input class="form-check-input" asp-for="Published" /> @Html.DisplayNameFor(model => model.Published)
                 </label>
             </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsHot" /> @Html.DisplayNameFor(model => model.IsHot)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsNewfeed" /> @Html.DisplayNameFor(model => model.IsNewfeed)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="MetaDesc" class="control-label"></label>
+                <input asp-for="MetaDesc" class="form-control" />
+                <span asp-validation-for="MetaDesc" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MetaKey" class="control-label"></label>
+                <input asp-for="MetaKey" class="form-control" />
+                <span asp-validation-for="MetaKey" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Scontents" class="control-label"></label>
+                <input asp-for="Scontents" class="form-control" />
+                <span asp-validation-for="Scontents" class="text-danger"></span>
+            </div>
             <div class="form-group">
                 <label asp-for="Alias" class="control-label"></label>
                 <input asp-for="Alias" class="form-control" />
                 <span asp-validation-for="Alias" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedDate" class="control-label"></label>
-                <input asp-for="CreatedDate" class="form-control" />
-                <span asp-validation-for="CreatedDate" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Author" class="control-label"></label>
@@ -55,32 +78,13 @@
             </div>
             <div class="form-group">
                 <label asp-for="AccountId" class="control-label"></label>
-                <select asp-for="AccountId" class ="form-control" asp-items="ViewBag.AccountId"></select>
+                <input asp-for="AccountId" class="form-control" />
+                <span asp-validation-for="AccountId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Tags" class="control-label"></label>
                 <input asp-for="Tags" class="form-control" />
                 <span asp-validation-for="Tags" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IsHot" class="control-label"></label>
-                <input asp-for="IsHot" class="form-control" />
-                <span asp-validation-for="IsHot" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IsNewfeed" class="control-label"></label>
-                <input asp-for="IsNewfeed" class="form-control" />
-                <span asp-validation-for="IsNewfeed" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MetaKey" class="control-label"></label>
-                <input asp-for="MetaKey" class="form-control" />
-                <span asp-validation-for="MetaKey" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MetaDesc" class="control-label"></label>
-                <input asp-for="MetaDesc" class="form-control" />
-                <span asp-validation-for="MetaDesc" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Views" class="control-label"></label>
@@ -95,6 +99,18 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Back to List</a> 
 </div>
+@section scripts {
+    <script src="~/lib/tinymce/tinymce.min.js"></script>
+    <script>
+        tinymce.init({
+            selector: '#Contents',
+            license_key: 'gpl'
+        });
+    </script>
+}
+
+
+
 

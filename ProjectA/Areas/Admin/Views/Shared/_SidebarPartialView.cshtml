@@ -58,24 +58,17 @@
                                 <a class="nav-link" href="500.html">500 Page</a>
                             </nav>
                         </div> *@
-                        <a class="nav-link" href="login.html">Quản lý danh mục</a>
+                        <a class="nav-link" asp-area="Admin" asp-controller="AdminCategories" asp-action="index">Quản lý danh mục</a>
                         <a class="nav-link" asp-area="Admin" asp-controller="AdminRoles" asp-action="index">Quản lý quyền truy cập</a>
                         <a class="nav-link" href="login.html">Quản lý Tỉnh/Thành</a>
                         <a class="nav-link" asp-area="Admin" asp-controller="AdminAccounts" asp-action="index">Quản lý tài khoản</a>
                     </nav>
                 </div>
 
-                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePosts" aria-expanded="false" aria-controls="collapsePosts">
+                <a class="nav-link" asp-area="Admin" asp-controller="AdminPosts" asp-action="Index">
                     <div class="sb-nav-link-icon"><i class="fa-regular fa-newspaper"></i></div>
                     Quản lý tin tức
-                    <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                 </a>
-                <div class="collapse" id="collapsePosts" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
-                    <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPost">
-                        <a class="nav-link" asp-area="Admin" asp-controller="AdminPosts" asp-action="Index">Danh sách tin tức</a>
-                    </nav>
-                </div>
-
                 <a class="nav-link" asp-area="Admin" asp-controller="AdminPages" asp-action="Index">
                     <div class="sb-nav-link-icon"><i class="fa-regular fa-file-lines"></i></div>
                     Quản lý Pages

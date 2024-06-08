@@ -27,9 +27,9 @@ public partial class Post
 
     public string? Tags { get; set; }
 
-    public bool? IsHot { get; set; }
+    public bool IsHot { get; set; }
 
-    public bool? IsNewfeed { get; set; }
+    public bool IsNewfeed { get; set; }
 
     public string? MetaKey { get; set; }
 

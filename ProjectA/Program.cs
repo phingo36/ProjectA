@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddDbContext<ProjectAContext>(
-        options => options.UseSqlServer("Server=PHI;database=ProjectA;Integrated Security=true;TrustServerCertificate=True;"));
+        options => options.UseSqlServer("Server=Phi;database=ProjectA;Integrated Security=true;Encrypt=False;TrustServerCertificate=True;"));
 
 builder.Services.AddSingleton<HtmlEncoder>(HtmlEncoder.Create(allowedRanges: new[] {UnicodeRanges.All}));
 
